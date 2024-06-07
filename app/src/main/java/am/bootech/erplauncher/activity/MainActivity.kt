@@ -25,7 +25,7 @@ class MainActivity : BaseActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val dataUrl = "https://realschool.am/oo/wrap?id=f28a2f1e-0729-40d5-aa2f-169cec17babb-f16c5814-86a2-4091-a09a-7a98a1e94949"
+        val dataUrl = "https://realschool.am/oo/wrap?id=40b89749-107c-4ebc-91df-5fc7150af39a-59186cfc-5d5c-4b8d-9b24-6b818804a642"
         fetchData(dataUrl) {
             initMainView(it)
         }
@@ -51,8 +51,8 @@ class MainActivity : BaseActivity() {
         jsonRoot.type.collections.forEach { collection ->
             Button(applicationContext).apply {
                 text = collection.name
-                if (collection.id == "widget") {
-                    jsonRoot.widget.forEachIndexed { index, uuid ->
+                if (collection.id == "subframes") {
+                    jsonRoot.subframes.forEachIndexed { index, uuid ->
                         SubFramesConverter.createViews(
                             this@MainActivity,
                             uuid,

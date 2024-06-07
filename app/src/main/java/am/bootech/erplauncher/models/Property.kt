@@ -18,5 +18,5 @@ data class Property(
     val kind: String,
     val symmetric_kind: String,
     val symmetric: String,
-    val type: String
+    val type: String,
 )

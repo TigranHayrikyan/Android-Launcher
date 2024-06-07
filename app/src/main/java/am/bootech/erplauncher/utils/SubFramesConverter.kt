@@ -3,10 +3,12 @@ package am.bootech.erplauncher.utils
 import am.bootech.erplauncher.R
 import am.bootech.erplauncher.models.JsonRoot
 import android.app.Activity
+import android.graphics.Color
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import com.google.gson.Gson
 
@@ -40,15 +42,18 @@ object SubFramesConverter {
         activity.runOnUiThread {
             val frameLayout = FrameLayout(activity).apply {
                 layoutParams = FrameLayout.LayoutParams(
-                    jsonRoot.Width.toInt(),
-                    jsonRoot.Height.toInt()
+                    (jsonRoot.width.toInt()).dp(),
+                    (jsonRoot.height.toInt()).dp()
                 )
-                setBackgroundColor(resources.getColor(getColor(index)))
+                if (jsonRoot.backgroundColor.isNotEmpty()) {
+                    val color = Color.parseColor(jsonRoot.backgroundColor)
+                    setBackgroundColor(color)
+                }
                 setPadding(16, 16, 16, 16)
             }
             addWidgets(jsonRoot, activity, frameLayout)
-            if (jsonRoot.widget.isNotEmpty()) {
-                jsonRoot.widget.forEachIndexed { index, uuid ->
+            if (jsonRoot.subframes.isNotEmpty()) {
+                jsonRoot.subframes.forEachIndexed { index, uuid ->
                     GetRequest().fetchData(suffix + uuid) {
                         val childJsonRoot = gson.fromJson(it.body?.string(), JsonRoot::class.java)
                         convertToView(activity, childJsonRoot, rootLayout, frameLayout, index)
@@ -71,18 +76,30 @@ object SubFramesConverter {
                     JsonRoot::class.java
                 )
                 activity.runOnUiThread {
-                    view.addView(
-                        Button(activity).apply {
-                            text = widget?.name
-                            layoutParams = FrameLayout.LayoutParams(
-                                jsonRoot.Width.toInt() / 4,
-                                jsonRoot.Height.toInt() / 4
-                            ).apply {
-                                gravity = setPreparedGravity(widget)
+                    if (widget.name == "Նկար") {
+                        view.addView(
+                            ImageView(activity).apply {
+                                layoutParams = FrameLayout.LayoutParams(
+                                    (jsonRoot.width.toInt() / 4).dp(),
+                                    (jsonRoot.height.toInt() / 4).dp()
+                                )
                             }
-                        }
-                    )
+                        )
+                    } else {
+                        view.addView(
+                            Button(activity).apply {
+                                text = widget?.name
+                                layoutParams = FrameLayout.LayoutParams(
+                                    (jsonRoot.width.toInt() / 4).dp(),
+                                    (jsonRoot.height.toInt() / 4).dp()
+                                ).apply {
+                                    gravity = setPreparedGravity(widget)
+                                }
+                            }
+                        )
+                    }
                 }
+
             }
         }
     }
