@@ -25,7 +25,8 @@ class MainActivity : BaseActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val dataUrl = "https://realschool.am/oo/wrap?id=40b89749-107c-4ebc-91df-5fc7150af39a-59186cfc-5d5c-4b8d-9b24-6b818804a642"
+        val dataUrl =
+            "https://realschool.am/oo/wrap?id=40b89749-107c-4ebc-91df-5fc7150af39a-59186cfc-5d5c-4b8d-9b24-6b818804a642"
         fetchData(dataUrl) {
             initMainView(it)
         }
@@ -49,25 +50,21 @@ class MainActivity : BaseActivity() {
         }
 
         jsonRoot.type.collections.forEach { collection ->
-            Button(applicationContext).apply {
-                text = collection.name
-                if (collection.id == "subframes") {
-                    jsonRoot.subframes.forEachIndexed { index, uuid ->
-                        SubFramesConverter.createViews(
-                            this@MainActivity,
-                            uuid,
-                            rootLayout,
-                            index
-                        )
-                    }
-                } else if (collection.id == "widgets") {
-                    if (jsonRoot.widgets.isNotEmpty()) {
-                        SubFramesConverter.addWidgets(
-                            jsonRoot,
-                            this@MainActivity,
-                            rootLayout,
-                        )
-                    }
+            if (collection.id == "subframes") {
+                jsonRoot.subframes.forEachIndexed { index, uuid ->
+                    SubFramesConverter.createViews(
+                        this@MainActivity,
+                        uuid,
+                        rootLayout
+                    )
+                }
+            } else if (collection.id == "widgets") {
+                if (jsonRoot.widgets.isNotEmpty()) {
+                    SubFramesConverter.addWidgets(
+                        jsonRoot,
+                        this@MainActivity,
+                        rootLayout,
+                    )
                 }
             }
         }

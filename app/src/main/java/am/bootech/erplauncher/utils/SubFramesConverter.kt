@@ -1,3 +1,5 @@
+@file:Suppress("DUPLICATE_LABEL_IN_WHEN")
+
 package am.bootech.erplauncher.utils
 
 import am.bootech.erplauncher.R
@@ -10,6 +12,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.google.gson.Gson
 
 object SubFramesConverter {
@@ -21,11 +24,10 @@ object SubFramesConverter {
         activity: Activity,
         uuid: String,
         rootLayout: LinearLayout,
-        index: Int
     ) {
         GetRequest().fetchData(suffix + uuid) {
             val jsonRoot = gson.fromJson(it.body?.string(), JsonRoot::class.java)
-            convertToView(activity, jsonRoot, rootLayout, null, index)
+            convertToView(activity, jsonRoot, rootLayout, null)
         }
         activity.runOnUiThread {
             activity.setContentView(rootLayout)
@@ -37,7 +39,6 @@ object SubFramesConverter {
         jsonRoot: JsonRoot,
         rootLayout: LinearLayout,
         layout: T?,
-        index: Int
     ) {
         activity.runOnUiThread {
             val frameLayout = FrameLayout(activity).apply {
@@ -56,7 +57,7 @@ object SubFramesConverter {
                 jsonRoot.subframes.forEachIndexed { index, uuid ->
                     GetRequest().fetchData(suffix + uuid) {
                         val childJsonRoot = gson.fromJson(it.body?.string(), JsonRoot::class.java)
-                        convertToView(activity, childJsonRoot, rootLayout, frameLayout, index)
+                        convertToView(activity, childJsonRoot, rootLayout, frameLayout)
                     }
                 }
             }
@@ -76,45 +77,81 @@ object SubFramesConverter {
                     JsonRoot::class.java
                 )
                 activity.runOnUiThread {
-                    if (widget.name == "Նկար") {
-                        view.addView(
-                            ImageView(activity).apply {
-                                layoutParams = FrameLayout.LayoutParams(
-                                    (jsonRoot.width.toInt() / 4).dp(),
-                                    (jsonRoot.height.toInt() / 4).dp()
-                                )
-                            }
-                        )
-                    } else {
-                        view.addView(
-                            Button(activity).apply {
-                                text = widget?.name
-                                layoutParams = FrameLayout.LayoutParams(
-                                    (jsonRoot.width.toInt() / 4).dp(),
-                                    (jsonRoot.height.toInt() / 4).dp()
-                                ).apply {
-                                    gravity = setPreparedGravity(widget)
-                                }
-                            }
+                    widgetByType(widget, jsonRoot, view, activity)
+                }
+            }
+        }
+    }
+
+    private fun widgetByType(
+        widget: JsonRoot,
+        jsonRoot: JsonRoot,
+        view: ViewGroup,
+        activity: Activity
+    ) {
+        when (widget.kind) {
+            KindUUIDs.IMAGE -> {
+                view.addView(
+                    ImageView(activity).apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            (jsonRoot.width.toInt() / 4).dp(),
+                            (jsonRoot.height.toInt() / 4).dp()
                         )
                     }
-                }
+                )
+            }
 
+            KindUUIDs.TEXT -> {
+                view.addView(
+                    TextView(activity).apply {
+                        text = widget.description
+                        layoutParams = FrameLayout.LayoutParams(
+                            (jsonRoot.width.toInt() / 4).dp(),
+                            (jsonRoot.height.toInt() / 4).dp()
+                        )
+                    }
+                )
+            }
+
+            KindUUIDs.LIST -> {
+                view.addView(
+                    TextView(activity).apply {
+                        text = widget.description
+                        layoutParams = FrameLayout.LayoutParams(
+                            (jsonRoot.width.toInt() / 4).dp(),
+                            (jsonRoot.height.toInt() / 4).dp()
+                        )
+                    }
+                )
+            }
+
+            KindUUIDs.BUTTON -> {
+                view.addView(
+                    Button(activity).apply {
+                        text = widget.name
+                        layoutParams = FrameLayout.LayoutParams(
+                            (jsonRoot.width.toInt()).dp(),
+                            (jsonRoot.height.toInt()).dp()
+                        ).apply {
+                            gravity = setPreparedGravity(widget)
+                        }
+                    }
+                )
             }
         }
     }
 
     private fun setPreparedGravity(widget: JsonRoot?): Int {
         return when (widget?.Positioning) {
-            "1" -> Gravity.TOP or Gravity.START
-            "2" -> Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            "3" -> Gravity.TOP or Gravity.END
-            "4" -> Gravity.CENTER_VERTICAL or Gravity.START
-            "5" -> Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL
-            "6" -> Gravity.CENTER_VERTICAL or Gravity.END
-            "7" -> Gravity.BOTTOM or Gravity.START
-            "8" -> Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            "9" -> Gravity.BOTTOM or Gravity.END
+            PositionUUIDs.TOP_START -> Gravity.TOP or Gravity.START
+            PositionUUIDs.TOP_CENTER -> Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            PositionUUIDs.TOP_END -> Gravity.TOP or Gravity.END
+            PositionUUIDs.CENTER_START -> Gravity.CENTER_VERTICAL or Gravity.START
+            PositionUUIDs.CENTER_CENTER -> Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL
+            PositionUUIDs.CENTER_END -> Gravity.CENTER_VERTICAL or Gravity.END
+            PositionUUIDs.BOTTOM_START -> Gravity.BOTTOM or Gravity.START
+            PositionUUIDs.BOTTOM_CENTER -> Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            PositionUUIDs.BOTTOM_END -> Gravity.BOTTOM or Gravity.END
             else -> {
                 Gravity.NO_GRAVITY
             }

@@ -15,4 +15,5 @@ data class JsonRoot(
     val margin: String, // New property
     val description: String,
     val backgroundColor: String,
+    val kind: String
 )
