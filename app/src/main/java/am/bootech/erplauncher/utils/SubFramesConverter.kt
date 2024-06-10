@@ -1,5 +1,3 @@
-@file:Suppress("DUPLICATE_LABEL_IN_WHEN")
-
 package am.bootech.erplauncher.utils
 
 import am.bootech.erplauncher.R
@@ -17,7 +15,7 @@ import com.google.gson.Gson
 
 object SubFramesConverter {
 
-    private const val suffix = "https://realschool.am/oo/wrap?id="
+    private const val SUFFIX = "https://realschool.am/oo/wrap?id="
     private val gson = Gson()
 
     fun createViews(
@@ -25,7 +23,7 @@ object SubFramesConverter {
         uuid: String,
         rootLayout: LinearLayout,
     ) {
-        GetRequest().fetchData(suffix + uuid) {
+        GetRequest().fetchData(SUFFIX + uuid) {
             val jsonRoot = gson.fromJson(it.body?.string(), JsonRoot::class.java)
             convertToView(activity, jsonRoot, rootLayout, null)
         }
@@ -54,8 +52,8 @@ object SubFramesConverter {
             }
             addWidgets(jsonRoot, activity, frameLayout)
             if (jsonRoot.subframes.isNotEmpty()) {
-                jsonRoot.subframes.forEachIndexed { index, uuid ->
-                    GetRequest().fetchData(suffix + uuid) {
+                jsonRoot.subframes.forEach { uuid ->
+                    GetRequest().fetchData(SUFFIX + uuid) {
                         val childJsonRoot = gson.fromJson(it.body?.string(), JsonRoot::class.java)
                         convertToView(activity, childJsonRoot, rootLayout, frameLayout)
                     }
@@ -71,19 +69,19 @@ object SubFramesConverter {
 
     fun addWidgets(jsonRoot: JsonRoot, activity: Activity, view: ViewGroup) {
         jsonRoot.widgets.forEach { uuid ->
-            GetRequest().fetchData(suffix + uuid) { widgetResponse ->
+            GetRequest().fetchData(SUFFIX + uuid) { widgetResponse ->
                 val widget = gson.fromJson(
                     widgetResponse.body?.string(),
                     JsonRoot::class.java
                 )
                 activity.runOnUiThread {
-                    widgetByType(widget, jsonRoot, view, activity)
+                    addWidgetByType(widget, jsonRoot, view, activity)
                 }
             }
         }
     }
 
-    private fun widgetByType(
+    private fun addWidgetByType(
         widget: JsonRoot,
         jsonRoot: JsonRoot,
         view: ViewGroup,
@@ -94,9 +92,12 @@ object SubFramesConverter {
                 view.addView(
                     ImageView(activity).apply {
                         layoutParams = FrameLayout.LayoutParams(
-                            (jsonRoot.width.toInt() / 4).dp(),
-                            (jsonRoot.height.toInt() / 4).dp()
-                        )
+                            jsonRoot.width.toInt().dp(),
+                            jsonRoot.height.toInt().dp()
+                        ).apply {
+                            gravity = setPreparedGravity(widget)
+                        }
+                        setImageResource(R.drawable.ic_launcher_foreground)
                     }
                 )
             }
@@ -106,9 +107,12 @@ object SubFramesConverter {
                     TextView(activity).apply {
                         text = widget.description
                         layoutParams = FrameLayout.LayoutParams(
-                            (jsonRoot.width.toInt() / 4).dp(),
-                            (jsonRoot.height.toInt() / 4).dp()
-                        )
+                            jsonRoot.width.toInt().dp(),
+                            jsonRoot.height.toInt().dp()
+                        ).apply {
+                            gravity = setPreparedGravity(widget)
+                        }
+                        gravity = setPreparedGravity(widget)
                     }
                 )
             }
@@ -116,11 +120,13 @@ object SubFramesConverter {
             KindUUIDs.LIST -> {
                 view.addView(
                     TextView(activity).apply {
-                        text = widget.description
                         layoutParams = FrameLayout.LayoutParams(
-                            (jsonRoot.width.toInt() / 4).dp(),
-                            (jsonRoot.height.toInt() / 4).dp()
-                        )
+                            jsonRoot.width.toInt().dp(),
+                            jsonRoot.height.toInt().dp()
+                        ).apply {
+                            gravity = setPreparedGravity(widget)
+                        }
+                        text = widget.description
                     }
                 )
             }
@@ -129,9 +135,10 @@ object SubFramesConverter {
                 view.addView(
                     Button(activity).apply {
                         text = widget.name
+                        gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
                         layoutParams = FrameLayout.LayoutParams(
-                            (jsonRoot.width.toInt()).dp(),
-                            (jsonRoot.height.toInt()).dp()
+                            jsonRoot.width.toInt().dp(),
+                            (jsonRoot.height.toInt() / 4).dp()
                         ).apply {
                             gravity = setPreparedGravity(widget)
                         }
@@ -142,7 +149,7 @@ object SubFramesConverter {
     }
 
     private fun setPreparedGravity(widget: JsonRoot?): Int {
-        return when (widget?.Positioning) {
+        return when (widget?.positioning) {
             PositionUUIDs.TOP_START -> Gravity.TOP or Gravity.START
             PositionUUIDs.TOP_CENTER -> Gravity.TOP or Gravity.CENTER_HORIZONTAL
             PositionUUIDs.TOP_END -> Gravity.TOP or Gravity.END
@@ -155,15 +162,6 @@ object SubFramesConverter {
             else -> {
                 Gravity.NO_GRAVITY
             }
-        }
-    }
-
-    private fun getColor(index: Int): Int {
-        return when (index) {
-            1 -> R.color.white
-            2 -> R.color.red
-            3 -> R.color.green
-            else -> R.color.blue
         }
     }
 }

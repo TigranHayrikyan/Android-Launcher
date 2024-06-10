@@ -1,10 +1,10 @@
 package am.bootech.erplauncher.models
 
 data class JsonRoot(
-    val Direction: String,
+    val direction: String,
     val width: String,
     val height: String,
-    val Positioning: String,
+    val positioning: String,
     val name: String,
     val type: Type,
     val uuid: String,
