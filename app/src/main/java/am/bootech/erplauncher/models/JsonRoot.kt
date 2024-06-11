@@ -8,12 +8,13 @@ data class JsonRoot(
     val name: String,
     val type: Type,
     val uuid: String,
-    val created: String, // New property
+    val created: String,
     val subframes: List<String>,
     val widgets: List<String>,
-    val padding: String, // New property
-    val margin: String, // New property
+    val padding: String,
+    val margin: String,
     val description: String,
     val backgroundColor: String,
-    val kind: String
+    val kind: String,
+    val fontSize: String?,
 )

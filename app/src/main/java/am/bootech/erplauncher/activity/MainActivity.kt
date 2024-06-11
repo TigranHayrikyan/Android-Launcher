@@ -6,6 +6,7 @@ import am.bootech.erplauncher.utils.DirectionUUIDs
 import am.bootech.erplauncher.utils.GetRequest
 import am.bootech.erplauncher.utils.SubFramesConverter
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
@@ -53,6 +54,10 @@ class MainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
+            if (jsonRoot.backgroundColor.isNotEmpty()) {
+                val color = Color.parseColor(jsonRoot.backgroundColor)
+                setBackgroundColor(color)
+            }
         }
 
         jsonRoot.type.collections.forEach { collection ->
