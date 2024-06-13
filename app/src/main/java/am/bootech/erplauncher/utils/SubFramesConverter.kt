@@ -1,10 +1,10 @@
 package am.bootech.erplauncher.utils
 
-import am.bootech.erplauncher.R
 import am.bootech.erplauncher.models.JsonRoot
 import android.app.Activity
 import android.graphics.Color
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 
 object SubFramesConverter {
@@ -82,16 +83,17 @@ object SubFramesConverter {
 
     fun addWidgets(jsonRoot: JsonRoot, activity: Activity, view: LinearLayout) {
         jsonRoot.widgets.forEach { uuid ->
-            GetRequest().fetchData(SUFFIX + uuid) { widgetResponse ->
-                val widget = gson.fromJson(
-                    widgetResponse.body?.string(),
-                    JsonRoot::class.java
-                )
-                Log.d("TAG", "addWidgets: ${widget.kind}")
-                activity.runOnUiThread {
-                    addWidgetByType(widget, view, activity)
+            Handler(Looper.getMainLooper()).postDelayed({
+                GetRequest().fetchData(SUFFIX + uuid) { widgetResponse ->
+                    val widget = gson.fromJson(
+                        widgetResponse.body?.string(),
+                        JsonRoot::class.java
+                    )
+                    activity.runOnUiThread {
+                        addWidgetByType(widget, view, activity)
+                    }
                 }
-            }
+            }, 500)
         }
     }
 
@@ -104,7 +106,13 @@ object SubFramesConverter {
         when (widget.kind) {
             KindUUIDs.IMAGE -> {
                 parsedView = ImageView(activity).apply {
-                    setImageResource(R.drawable.ic_launcher_foreground)
+                    if (widget.upload.isNullOrEmpty().not()) {
+                        val imageURL = "https://t4.ftcdn.net/jpg/02/62/76/57/360_F_262765707_7ipekmhWAQbIy61VGRdpWo4eHeuN6Ub3.jpg"
+//                        val imageURL = "https://realschool.am/db/get?id=48b87439-e58b-4f19-b612-60f763d8e1fd-776ec69a-e39a-4769-a297-eea4207a71e9"
+                        Glide.with(this)
+                            .load(imageURL)
+                            .into(this)
+                    }
                 }
             }
 

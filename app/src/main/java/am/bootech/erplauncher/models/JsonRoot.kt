@@ -17,4 +17,5 @@ data class JsonRoot(
     val backgroundColor: String,
     val kind: String,
     val fontSize: String?,
+    val upload: String?,
 )

@@ -8,6 +8,8 @@ import am.bootech.erplauncher.utils.SubFramesConverter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -54,26 +56,29 @@ class MainActivity : AppCompatActivity() {
                 setBackgroundColor(color)
             }
         }
-
-        jsonRoot.type.collections.forEach { collection ->
-            if (collection.id == "subframes") {
-                jsonRoot.subframes.forEach { uuid ->
-                    SubFramesConverter.createViews(
-                        this@MainActivity,
-                        uuid,
-                        rootLayout
-                    )
-                }
-            } else if (collection.id == "widgets") {
-                if (jsonRoot.widgets.isNotEmpty()) {
-                    SubFramesConverter.addWidgets(
-                        jsonRoot,
-                        this@MainActivity,
-                        rootLayout,
-                    )
+        Handler(Looper.getMainLooper()).postDelayed({
+            jsonRoot.type.collections.forEach { collection ->
+                if (collection.id == "subframes") {
+                    jsonRoot.subframes.forEach { uuid ->
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            SubFramesConverter.createViews(
+                                this@MainActivity,
+                                uuid,
+                                rootLayout
+                            )
+                        }, 500)
+                    }
+                } else if (collection.id == "widgets") {
+                    if (jsonRoot.widgets.isNotEmpty()) {
+                        SubFramesConverter.addWidgets(
+                            jsonRoot,
+                            this@MainActivity,
+                            rootLayout,
+                        )
+                    }
                 }
             }
-        }
+        }, 500)
         this@MainActivity.runOnUiThread {
             setContentView(rootLayout)
         }
