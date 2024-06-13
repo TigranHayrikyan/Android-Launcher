@@ -3,8 +3,10 @@ package am.bootech.erplauncher.utils
 import am.bootech.erplauncher.models.JsonRoot
 import android.app.Activity
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -13,10 +15,15 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 
 object SubFramesConverter {
 
+    private const val IMAGE_SUFFIX = "https://realschool.am/db/get?id="
     private const val SUFFIX = "https://realschool.am/oo/wrap?id="
     private val gson = Gson()
 
@@ -107,10 +114,35 @@ object SubFramesConverter {
             KindUUIDs.IMAGE -> {
                 parsedView = ImageView(activity).apply {
                     if (widget.upload.isNullOrEmpty().not()) {
-                        val imageURL = "https://t4.ftcdn.net/jpg/02/62/76/57/360_F_262765707_7ipekmhWAQbIy61VGRdpWo4eHeuN6Ub3.jpg"
-//                        val imageURL = "https://realschool.am/db/get?id=48b87439-e58b-4f19-b612-60f763d8e1fd-776ec69a-e39a-4769-a297-eea4207a71e9"
+                        val imageURL = IMAGE_SUFFIX + widget.upload
                         Glide.with(this)
                             .load(imageURL)
+                            .addListener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(
+                                    e: GlideException?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    Log.e("GLIDE", "onLoadFailed: " + e?.message)
+                                    if (e != null) {
+                                        for (t in e.rootCauses) {
+                                            Log.e("GLIDE", "Caused by", t)
+                                        }
+                                    }
+                                    return false
+                                }
+
+                                override fun onResourceReady(
+                                    resource: Drawable?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    return false
+                                }
+                            })
                             .into(this)
                     }
                 }

@@ -5,6 +5,7 @@ import am.bootech.erplauncher.models.JsonRoot
 import am.bootech.erplauncher.utils.DirectionUUIDs
 import am.bootech.erplauncher.utils.GetRequest
 import am.bootech.erplauncher.utils.SubFramesConverter
+import am.bootech.erplauncher.utils.dp
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
@@ -15,14 +16,33 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
+import com.bumptech.glide.load.model.GlideUrl
 import com.google.gson.Gson
+import okhttp3.OkHttpClient
 import okhttp3.Response
+import java.io.InputStream
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val client: OkHttpClient = OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+
+        Glide.get(this).registry.replace(
+            GlideUrl::class.java,
+            InputStream::class.java,
+            OkHttpUrlLoader.Factory(client)
+        )
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -41,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         val gson = Gson()
         val jsonRoot = gson.fromJson(response.body?.string(), JsonRoot::class.java)
         val rootLayout: LinearLayout = LinearLayout(applicationContext).apply {
-            setPadding(20, 100, 20, 0)
+            setPadding(8.dp(), 80.dp(), 0.dp(), 0)
             orientation = if (jsonRoot.direction == DirectionUUIDs.DIRECTION_VERTICAL) {
                 LinearLayout.VERTICAL
             } else {
@@ -66,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                                 uuid,
                                 rootLayout
                             )
-                        }, 500)
+                        }, 800)
                     }
                 } else if (collection.id == "widgets") {
                     if (jsonRoot.widgets.isNotEmpty()) {
@@ -78,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        }, 500)
+        }, 800)
         this@MainActivity.runOnUiThread {
             setContentView(rootLayout)
         }

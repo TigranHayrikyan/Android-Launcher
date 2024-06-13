@@ -48,4 +48,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.okhttp)
     implementation (libs.glide)
+    implementation (libs.glide.v4151)
+    annotationProcessor (libs.compiler)
+    implementation (libs.okhttp.v493)
+    implementation (libs.okhttp3.integration)
 }
