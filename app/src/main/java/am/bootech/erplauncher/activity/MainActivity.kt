@@ -8,17 +8,12 @@ import am.bootech.erplauncher.utils.SubFramesConverter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.Button
 import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import okhttp3.Response
 
 class MainActivity : AppCompatActivity() {

@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -45,10 +46,17 @@ object SubFramesConverter {
                 } else {
                     LinearLayout.HORIZONTAL
                 }
-                layoutParams = LinearLayout.LayoutParams(
-                    (jsonRoot.width.toInt()).dp(),
-                    (jsonRoot.height.toInt()).dp()
-                )
+                layoutParams = if (jsonRoot.width.isNotEmpty() && jsonRoot.height.isNotEmpty()) {
+                    LinearLayout.LayoutParams(
+                        (jsonRoot.width.toInt()).dp(),
+                        (jsonRoot.height.toInt()).dp()
+                    )
+                } else {
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
                 if (jsonRoot.backgroundColor.isNotEmpty()) {
                     val color = Color.parseColor(jsonRoot.backgroundColor)
                     setBackgroundColor(color)
